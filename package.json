@@ -1,0 +1,32 @@
+{
+  "name": "express-mesto",
+  "version": "1.0.0",
+  "description": "Сервер для запуска проекта Место, разработанный при помощи express.js",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StepanKhvatov/express-mesto.git"
+  },
+  "author": "StepanKhvatov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/StepanKhvatov/express-mesto.git"
+  },
+  "homepage": "",
+  "devDependencies": {
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-rate-limit": "^5.1.3",
+    "mongoose": "^5.10.6"
+  }
+}
