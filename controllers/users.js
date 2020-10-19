@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const UserSchema = require('../models/user');
 
 const getAllUsers = (req, res) => { // Метод, возвращающий всех пользователей
@@ -7,9 +9,16 @@ const getAllUsers = (req, res) => { // Метод, возвращающий вс
 };
 
 const createUser = (req, res) => { // Метод создания пользователя
-  const { name, about, avatar } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
-  UserSchema.create({ name, about, avatar })
+  bcrypt.hash(password, 10)
+    .then((hash) => UserSchema.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.send({ data: user }))
     .catch(
       (error) => {
@@ -83,10 +92,24 @@ const updateAvatar = (req, res) => { // метод, возвращающий о�
     });
 };
 
+const login = (req, res) => { // Авторицзация пользователя
+  const { email, password } = req.body;
+
+  return UserSchema.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };

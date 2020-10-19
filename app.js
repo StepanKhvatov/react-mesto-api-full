@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 
+const { createUser, login } = require('./controllers/users');
+
+const auth = require('./middlewares/auth');
+
 const { PORT = 3000 } = process.env;
 
 const users = require('./routes/users');
@@ -25,22 +29,19 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5f675752c1865d3868bb2e86',
-  };
+app.post('/signup', createUser);
+app.post('/signin', login);
 
-  next();
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
+
+app.use(auth);
 
 app.use(users);
 app.use(cards);
 
 app.use(limiter);
-
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-});
 
 app.listen(PORT, () => {
   console.log(`Port ${PORT}`);
