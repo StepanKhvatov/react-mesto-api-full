@@ -32,6 +32,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signup', createUser);
 app.post('/signin', login);
 
+app.get('/test', (req, res) => {
+  res.send({ message: 'Подключение есть' });
+});
+
 app.all('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });
