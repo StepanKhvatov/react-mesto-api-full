@@ -1,16 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
+
+const users = require('./routes/users');
+const cards = require('./routes/cards');
 
 const { createUser, login } = require('./controllers/users');
 
 const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
-
-const users = require('./routes/users');
-const cards = require('./routes/cards');
 
 const app = express();
 
@@ -32,18 +33,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signup', createUser);
 app.post('/signin', login);
 
-app.get('/test', (req, res) => {
-  res.send({ message: 'Подключение есть' });
-});
-
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-});
-
 app.use(auth);
 
 app.use(users);
 app.use(cards);
+
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+});
 
 app.use(limiter);
 
