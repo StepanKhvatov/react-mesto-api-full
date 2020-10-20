@@ -8,12 +8,14 @@ const UserSchema = new mongoose.Schema({
     required: true,
     minlength: 2,
     maxlength: 30,
+    default: 'Введите ваше имя',
   },
   about: {
     type: String,
     required: true,
     minlength: 2,
     maxlength: 30,
+    default: 'Введите информацию о себе',
   },
   avatar: {
     type: String,
@@ -24,6 +26,7 @@ const UserSchema = new mongoose.Schema({
       },
       message: 'Ошибка валидации ссылки на аватар профиля',
     },
+    default: 'https://images.unsplash.com/photo-1602770279150-13b5daf0f3f2?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80',
   },
   email: {
     type: String,
