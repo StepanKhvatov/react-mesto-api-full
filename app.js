@@ -30,7 +30,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use(cors({
-  origin: 'https://www.shv.students.nomoreparties.co/',
+  origin: 'https://www.shv.students.nomoreparties.co',
 }));
 
 app.use(bodyParser.json());
