@@ -19,6 +19,6 @@ users.patch('/users/me', celebrate({
   }),
 }), updateUser);
 
-users.patch('/users/me/avatar',  updateAvatar);
+users.patch('/users/me/avatar', updateAvatar);
 
 module.exports = users;
