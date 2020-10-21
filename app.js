@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { celebrate, errors, Joi } = require('celebrate');
 
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -12,6 +12,7 @@ const cards = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
 
 const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -38,8 +39,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(requestLogger);
 
-app.post('/signup', createUser);
-app.post('/signin', login);
+app.post('/signup', celebrate({ // регистрация пользователя
+  body: Joi.object().keys({
+    name: Joi.string().required().min(4),
+    about: Joi.string().required().min(4),
+    avatar: Joi.string().required().uri(),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(4),
+  }),
+}), createUser);
+
+app.post('/signin', celebrate({ // авторизация пользователя
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(4),
+  }),
+}), login);
 
 app.use(auth);
 
@@ -54,6 +69,8 @@ app.all('*', (req, res) => {
 app.use(errorLogger);
 
 app.use(limiter);
+
+app.use(errors()); // обработчик ошибок celebrate
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
