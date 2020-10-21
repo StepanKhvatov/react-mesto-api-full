@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const { celebrate, errors, Joi } = require('celebrate');
 const cors = require('cors');
+const NotFoundError = require('./errors/NotFoundError.js');
 
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -62,8 +63,8 @@ app.use(users);
 
 app.use(cards);
 
-app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use(() => { // Ошибка 500
+  throw new NotFoundError({ message: 'Запрашиваемый ресурс не найден' });
 });
 
 app.use(errorLogger);
@@ -72,17 +73,7 @@ app.use(limiter);
 
 app.use(errors()); // обработчик ошибок celebrate
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-});
+app.use((err, req, res, next) => res.status(err.status || 500).send({ message: err.message}));
 
 app.listen(PORT, () => {
   console.log(`Port ${PORT}`);
