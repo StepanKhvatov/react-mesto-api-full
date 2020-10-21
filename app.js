@@ -34,6 +34,8 @@ app.use(cors({
   origin: 'https://www.shv.students.nomoreparties.co',
 }));
 
+app.options('*', cors());
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
