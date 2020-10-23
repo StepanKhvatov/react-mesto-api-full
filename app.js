@@ -71,6 +71,7 @@ app.use(limiter);
 
 app.use(errors()); // обработчик ошибок celebrate
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => res.status(err.status || 500).send({ message: err.message }));
 
 app.listen(PORT, () => {
