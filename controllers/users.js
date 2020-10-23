@@ -39,20 +39,7 @@ const createUser = (req, res) => { // Метод создания пользов
 };
 
 const getUserById = (req, res) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.user._id) // req.params.userId
-    .orFail(new Error('NotValid'))
-    .then((user) => res.send({ data: user }))
-    .catch((error) => {
-      if (error.message === 'NotValid') {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else {
-        res.status(500).send({ message: error.message });
-      }
-    });
-};
-
-const getUser = (req, res) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.user._id)
+  UserSchema.findById(req.user._id) // req.params.userId было до изменений
     .orFail(new Error('NotValid'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
@@ -128,7 +115,6 @@ const login = (req, res) => { // Авторицзация пользовател
 module.exports = {
   getAllUsers,
   getUserById,
-  getUser,
   createUser,
   updateUser,
   updateAvatar,

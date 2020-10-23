@@ -4,7 +4,6 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getAllUsers,
   getUserById,
-  getUser,
   updateUser,
   updateAvatar,
 } = require('../controllers/users');

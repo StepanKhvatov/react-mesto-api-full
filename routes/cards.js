@@ -15,7 +15,7 @@ cards.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(4),
     link: Joi.string().required().uri(),
-  }).unknown(true),
+  }),
 }), createCard);
 
 cards.delete('/cards/:cardId', deleteCard);
