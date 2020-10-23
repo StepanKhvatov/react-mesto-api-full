@@ -55,9 +55,9 @@ app.post('/signin', celebrate({ // авторизация пользовател
   }),
 }), login);
 
-app.use(auth);
-
 app.use(users);
+
+app.use(auth);
 
 app.use(cards);
 
@@ -71,7 +71,7 @@ app.use(limiter);
 
 app.use(errors()); // обработчик ошибок celebrate
 
-app.use((err, req, res, next) => res.status(err.status || 500).send({ message: err.message}));
+app.use((err, req, res, next) => res.status(err.status || 500).send({ message: err.message }));
 
 app.listen(PORT, () => {
   console.log(`Port ${PORT}`);
