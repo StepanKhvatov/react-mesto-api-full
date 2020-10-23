@@ -52,7 +52,7 @@ const getUserById = (req, res) => { // Метод, возвращающий по
 };
 
 const getUser = (req, res) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.user.id)
+  UserSchema.findById(req.user._id)
     .orFail(new Error('NotValid'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
