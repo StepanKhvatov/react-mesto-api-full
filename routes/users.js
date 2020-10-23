@@ -25,4 +25,6 @@ users.patch('/users/me/avatar', celebrate({
   }).unknown(true),
 }), updateAvatar);
 
+users.get('users/me', getUserById);
+
 module.exports = users;
