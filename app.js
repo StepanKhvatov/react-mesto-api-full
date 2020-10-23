@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 const { celebrate, errors, Joi } = require('celebrate');
-const cors = require('cors');
+// const cors = require('cors');
 const NotFoundError = require('./errors/NotFoundError.js');
 
 const users = require('./routes/users');
@@ -26,7 +26,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 const app = express();
 
-app.use(cors());
+// app.use(cors());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
