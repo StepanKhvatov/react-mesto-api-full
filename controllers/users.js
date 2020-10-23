@@ -39,7 +39,7 @@ const createUser = (req, res) => { // Метод создания пользов
 };
 
 const getUserById = (req, res) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.params.userId)
+  UserSchema.findById(req.user._id) // req.params.userId
     .orFail(new Error('NotValid'))
     .then((user) => res.send({ data: user }))
     .catch((error) => {
