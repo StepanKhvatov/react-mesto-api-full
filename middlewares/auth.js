@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`);
   } catch (err) {
     throw new UnauthorizedError({ message: 'Необходима авторизация' }); // Ошибка 401
   }
