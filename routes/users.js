@@ -4,6 +4,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getAllUsers,
   getUserById,
+  getUser,
   updateUser,
   updateAvatar,
 } = require('../controllers/users');
@@ -25,6 +26,6 @@ users.patch('/users/me/avatar', celebrate({
   }).unknown(true),
 }), updateAvatar);
 
-users.get('/users/me', getUserById);
+users.get('/users/me', getUser);
 
 module.exports = users;

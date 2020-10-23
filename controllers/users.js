@@ -51,6 +51,19 @@ const getUserById = (req, res) => { // Метод, возвращающий по
     });
 };
 
+const getUser = (req, res) => { // Метод, возвращающий пользователя по id
+  UserSchema.findById(req.user.id)
+    .orFail(new Error('NotValid'))
+    .then((user) => res.send({ data: user }))
+    .catch((error) => {
+      if (error.message === 'NotValid') {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else {
+        res.status(500).send({ message: error.message });
+      }
+    });
+};
+
 const updateUser = (req, res) => { // метод, возвращающий обновленного пользователя
   const { name, about } = req.body;
 
@@ -115,6 +128,7 @@ const login = (req, res) => { // Авторицзация пользовател
 module.exports = {
   getAllUsers,
   getUserById,
+  getUser,
   createUser,
   updateUser,
   updateAvatar,
