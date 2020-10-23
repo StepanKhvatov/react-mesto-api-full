@@ -55,9 +55,9 @@ app.post('/signin', celebrate({ // авторизация пользовател
   }),
 }), login);
 
-app.use(users);
-
 app.use(auth);
+
+app.use(users);
 
 app.use(cards);
 
