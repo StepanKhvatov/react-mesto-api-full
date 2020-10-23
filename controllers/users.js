@@ -10,6 +10,9 @@ const getAllUsers = (req, res) => { // Метод, возвращающий вс
 };
 
 const createUser = (req, res) => { // Метод создания пользователя
+  const defaultName = 'Введите ваше имя';
+  const defaultAbout = 'О себе';
+  const defaultAvatar = 'https://images.unsplash.com/photo-1584772988869-dccc362700a6?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80';
   const {
     name,
     about,

@@ -40,9 +40,9 @@ app.use(requestLogger);
 
 app.post('/signup', celebrate({ // регистрация пользователя
   body: Joi.object().keys({
-    name: Joi.string().required().min(4),
-    about: Joi.string().required().min(4),
-    avatar: Joi.string().required().uri(),
+    // name: Joi.string().required().min(4),
+    // about: Joi.string().required().min(4),
+    // avatar: Joi.string().required().uri(),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(4),
   }),
