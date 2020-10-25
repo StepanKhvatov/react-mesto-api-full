@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`);
+    payload = jwt.verify(token, `${process.env.JWT_SECRET}`);
   } catch (err) {
     throw new UnauthorizedError({ message: 'Необходима авторизация(мидлвер auth)' }); // Ошибка 401
   }
