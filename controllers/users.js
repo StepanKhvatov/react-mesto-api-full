@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserSchema = require('../models/user');
 
+const JWT_SECRET = 'hello';
+
 const getAllUsers = (req, res) => { // Метод, возвращающий всех пользователей
   UserSchema.find({})
     .then((users) => res.send({ data: users }))
@@ -104,7 +106,8 @@ const login = (req, res) => { // Авторицзация пользовател
 
   return UserSchema.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, { expiresIn: '7d' });
+      // const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch((err) => {
