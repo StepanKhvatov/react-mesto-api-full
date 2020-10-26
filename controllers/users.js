@@ -71,7 +71,7 @@ const updateUser = (req, res, next) => { // метод, возвращающий
   )
     .then((user) => {
       try {
-        res.send({ data: user })
+        res.send({ data: user });
       } catch (error) {
         if (error.name === 'ValidationError') {
           throw new BadRequestError('Ошибка валидации обновления пользователя');

@@ -3,9 +3,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
-const { celebrate, errors, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const cors = require('cors');
 const NotFoundError = require('./errors/NotFoundError(404).js');
+
+const {
+  signUpValidation,
+  signInValidation,
+} = require('./celebrateValidation/auth');
 
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -44,23 +49,9 @@ app.get('/crash-test', () => {
   }, 0);
 });
 
-app.post('/signup', celebrate({ // регистрация пользователя
-  body: Joi.object().keys({
-    // name: Joi.string().required().min(2).max(30),
-    // about: Joi.string().required().min(2).max(30),  // вставка значений по умолчанию
-    // eslint-disable-next-line max-len
-    // avatar: Joi.string().required().uri().regex(/^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(4),
-  }),
-}), createUser);
+app.post('/signup', signUpValidation, createUser);
 
-app.post('/signin', celebrate({ // авторизация пользователя
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(4),
-  }),
-}), login);
+app.post('/signin', signInValidation, login);
 
 app.use(auth);
 
