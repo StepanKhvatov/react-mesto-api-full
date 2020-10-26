@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/StepanKhvatov/express-mesto.git"
   },
-  "homepage": "",
+  "homepage": "https://www.a.shv.students.nomoreparties.space",
   "devDependencies": {
     "eslint": "^7.8.1",
     "eslint-config-airbnb-base": "^14.2.0",

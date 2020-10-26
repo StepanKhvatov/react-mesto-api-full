@@ -2,14 +2,19 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserSchema = require('../models/user');
+const BadRequestError = require('../errors/BadRequestError(400)');
+const NotFoundError = require('../errors/NotFoundError(404)');
+const UnauthorizedError = require('../errors/UnauthorizedError(401)');
 
-const getAllUsers = (req, res) => { // Метод, возвращающий всех пользователей
+const { JWT_SECRET = 'secret-key' } = process.env;
+
+const getAllUsers = (req, res, next) => { // Метод, возвращающий всех пользователей
   UserSchema.find({})
     .then((users) => res.send({ data: users }))
-    .catch((error) => res.status(500).send({ message: error.message }));
+    .catch(next);
 };
 
-const createUser = (req, res) => { // Метод создания пользователя
+const createUser = (req, res, next) => { // Метод создания пользователя
   const {
     name,
     about,
@@ -26,32 +31,34 @@ const createUser = (req, res) => { // Метод создания пользов
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
-    .catch(
-      (error) => {
-        if (error.name === 'ValidationError') {
-          res.status(400).send({ message: error.message });
-        } else {
-          res.status(500).send({ message: error.message });
-        }
-      },
-    );
-};
-
-const getUserById = (req, res) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.user._id) // req.params.userId было до изменений
-    .orFail(new Error('NotValid'))
-    .then((user) => res.send({ data: user }))
-    .catch((error) => {
-      if (error.message === 'NotValid') {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else {
-        res.status(500).send({ message: error.message });
+    .then((user) => {
+      if (!user) {
+        throw new BadRequestError('Ошибка валидации создания пользователя');
       }
-    });
+      res.send({
+        data: {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          email: user.email,
+        },
+      });
+    })
+    .catch(next);
 };
 
-const updateUser = (req, res) => { // метод, возвращающий обновленного пользователя
+const getUserById = (req, res, next) => { // Метод, возвращающий пользователя по id
+  UserSchema.findById(req.user._id) // req.params.userId было до изменений
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
+const updateUser = (req, res, next) => { // метод, возвращающий обновленного пользователя
   const { name, about } = req.body;
 
   UserSchema.findByIdAndUpdate(
@@ -62,20 +69,21 @@ const updateUser = (req, res) => { // метод, возвращающий об�
       runValidators: true, // данные будут валидированы перед изменением
     },
   )
-    .orFail(new Error('NotValid'))
-    .then((user) => res.send({ data: user }))
-    .catch((error) => {
-      if (error.message === 'NotValid') {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else if (error.name === 'ValidationError') {
-        res.status(400).send({ message: error.message });
-      } else {
-        res.status(500).send({ message: error.message });
+    .then((user) => {
+      try {
+        res.send({ data: user })
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          throw new BadRequestError('Ошибка валидации обновления пользователя');
+        } else if (!user) {
+          throw new NotFoundError('Нет пользователя с таким id');
+        }
       }
-    });
+    })
+    .catch(next);
 };
 
-const updateAvatar = (req, res) => { // метод, возвращающий обновленный аватар
+const updateAvatar = (req, res, next) => { // метод, возвращающий обновленный аватар
   const { avatar } = req.body;
 
   UserSchema.findByIdAndUpdate(
@@ -86,30 +94,33 @@ const updateAvatar = (req, res) => { // метод, возвращающий о�
       runValidators: true,
     },
   )
-    .orFail(new Error('NotValid'))
-    .then((user) => res.send({ data: user.avatar }))
-    .catch((error) => {
-      if (error.message === 'NotValid') {
-        res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else if (error.name === 'ValidationError') {
-        res.status(400).send({ message: error.message });
-      } else {
-        res.status(500).send({ message: error.message });
+    .then((user) => {
+      try {
+        res.send({ data: user.avatar });
+      } catch (error) {
+        if (error.name === 'ValidationError') {
+          throw new BadRequestError('Ошибка валидации обновления пользователя');
+        } else if (!user) {
+          throw new NotFoundError('Нет пользователя с таким id');
+        }
       }
-    });
+    })
+    .catch(next);
 };
 
-const login = (req, res) => { // Авторицзация пользователя
+const login = (req, res, next) => { // Авторицзация пользователя
   const { email, password } = req.body;
 
   return UserSchema.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, `${process.env.JWT_SECRET}`, { expiresIn: '7d' });
-      res.send({ token });
+      const token = jwt.sign({ _id: user._id }, `${JWT_SECRET}`, { expiresIn: '7d' });
+      try {
+        res.send({ token });
+      } catch (error) {
+        throw UnauthorizedError('Необходима авторизация');
+      }
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 module.exports = {

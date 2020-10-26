@@ -1,6 +1,8 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+const UnauthorizedError = require('../errors/UnauthorizedError(401)');
+
+const { JWT_SECRET = 'secret-key' } = process.env;
 
 module.exports = (req, res, next) => {
   const token = req.headers.authorization && req.headers.authorization.replace('Bearer ', '');
@@ -8,9 +10,9 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, `${process.env.JWT_SECRET}`);
+    payload = jwt.verify(token, `${JWT_SECRET}`);
   } catch (err) {
-    throw new UnauthorizedError({ message: 'Необходима авторизация(мидлвер auth)' }); // Ошибка 401
+    throw new UnauthorizedError('Необходима авторизация'); // Ошибка 401
   }
 
   req.user = payload;
