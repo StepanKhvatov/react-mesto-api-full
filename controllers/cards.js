@@ -4,8 +4,9 @@ const ForbiddenError = require('../errors/ForbiddenError(403)');
 
 const getAllCards = (req, res, next) => { // Метод, возвращающий массив всех карточек
   CardSchema.find({})
+    .orFail(() => { throw new NotFoundError('Ошибка загрузки карточек. Карточки не найдены'); })
     .then((cards) => {
-      res.send({ data: cards });
+      res.send({ data: cards.reverse() });
     })
     .catch(next);
 };
