@@ -17,8 +17,8 @@ users.get('/users', getAllUsers);
 
 users.patch('/users/me', updateUserValidation, updateUser);
 
-users.patch('/users/me', updateAvatarValidation, updateAvatar);
+users.patch('/users/me/avatar', updateAvatarValidation, updateAvatar);
 
-users.get('/users/me', getUserByIdValidation, getUserById);
+users.get('/users/me', getUserByIdValidation, getUserById); // поиск по id, находящимся в req.user._id
 
 module.exports = users;

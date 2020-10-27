@@ -22,6 +22,11 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -33,15 +38,12 @@ const app = express();
 
 app.use(cors());
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(requestLogger);
+
+app.use(limiter);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
@@ -60,8 +62,6 @@ app.use(users);
 app.use(cards);
 
 app.use(errorLogger);
-
-app.use(limiter);
 
 app.use(errors()); // обработчик ошибок celebrate
 

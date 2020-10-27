@@ -1,6 +1,7 @@
 const CardSchema = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError(400)');
 const NotFoundError = require('../errors/NotFoundError(404)');
+const ForbiddenError = require('../errors/ForbiddenError(403)');
 
 const getAllCards = (req, res, next) => { // Метод, возвращающий массив всех карточек
   CardSchema.find({})
@@ -19,22 +20,24 @@ const createCard = (req, res, next) => { // метод создания ново
     owner: req.user._id,
   })
     .then((card) => {
-      if (!card) {
-        throw new BadRequestError('Ошибка валидации карточки');
-      }
       res.send({ data: card });
     })
     .catch(next);
 };
 
 const deleteCard = (req, res, next) => { // метод удаления карточки
-  CardSchema.findByIdAndRemove(req.params.cardId)
+  CardSchema.findOne({ _id: req.params.cardId })
+    .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Нет карточки с таким id');
+      if (`${card.owner}` !== `${req.user._id}`) { // ага, при сравнении id использовать шаблонные строки
+        throw new ForbiddenError('У вас не прав для удаления карточки');
       }
-
-      res.send({ data: card });
+      CardSchema.findByIdAndRemove(req.params.cardId)
+        .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
+        .then((deletedCard) => {
+          res.send({ data: deletedCard });
+        })
+        .catch(next);
     })
     .catch(next);
 };
@@ -45,6 +48,7 @@ const likeCard = (req, res, next) => { // Постановка лайка кар
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Нет карточки с таким id');
@@ -60,6 +64,7 @@ const dislikeCard = (req, res, next) => { // Удаление лайка кар�
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Нет карточки с таким id');

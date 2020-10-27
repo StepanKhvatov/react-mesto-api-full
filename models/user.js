@@ -49,22 +49,17 @@ const UserSchema = new mongoose.Schema({
 
 }, { versionKey: false });
 
-UserSchema.statics.findUserByCredentials = function (email, password) {
+UserSchema.statics.findUserByCredentials = function (email, password, next) {
   return this.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким email');
-      }
-
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UnauthorizedError('Неправильные почта или пароль');
-          }
-
-          return user;
-        });
-    });
+    .orFail(() => { throw new NotFoundError('Нет пользователя с таким email'); })
+    .then((user) => bcrypt.compare(password, user.password)
+      .then((matched) => {
+        if (!matched) {
+          throw new UnauthorizedError('Неправильные почта или пароль');
+        }
+        return user;
+      }))
+    .catch(next);
 };
 
 module.exports = mongoose.model('user', UserSchema);

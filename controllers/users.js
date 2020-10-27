@@ -5,6 +5,7 @@ const UserSchema = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError(400)');
 const NotFoundError = require('../errors/NotFoundError(404)');
 const UnauthorizedError = require('../errors/UnauthorizedError(401)');
+const ConflictError = require('../errors/ConflictError(409)');
 
 const { JWT_SECRET = 'secret-key' } = process.env;
 
@@ -23,36 +24,39 @@ const createUser = (req, res, next) => { // Метод создания поль
     password,
   } = req.body;
 
-  return bcrypt.hash(password, 10)
-    .then((hash) => UserSchema.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => {
-      if (!user) {
-        throw new BadRequestError('Ошибка валидации создания пользователя');
+  return UserSchema.findOne({ email })
+    .then((sameUser) => {
+      if (sameUser) {
+        throw new ConflictError('Пользователь с таким email уже есть');
       }
-      res.send({
-        data: {
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          email: user.email,
-        },
-      });
+
+      return bcrypt.hash(password, 10)
+        .then((hash) => UserSchema.create({
+          name,
+          about,
+          avatar,
+          email,
+          password: hash,
+        }))
+        .then((user) => {
+          res.send({
+            data: {
+              name: user.name,
+              about: user.about,
+              avatar: user.avatar,
+              email: user.email,
+            },
+          });
+        })
+        .catch();
     })
     .catch(next);
 };
 
-const getUserById = (req, res, next) => { // Метод, возвращающий пользователя по id
-  UserSchema.findById(req.user._id) // req.params.userId было до изменений
+const getUserById = (req, res, next) => { // поиск по id, находящимся в req.user._id
+  UserSchema.findById(req.user._id)// req.params.userId было до изменений
+    .orFail(() => { throw new NotFoundError('Нет пользователя с таким id'); })
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
       res.send({ data: user });
     })
     .catch(next);
@@ -69,14 +73,13 @@ const updateUser = (req, res, next) => { // метод, возвращающий
       runValidators: true, // данные будут валидированы перед изменением
     },
   )
+    .orFail(() => { throw new NotFoundError('Нет пользователя с таким id'); })
     .then((user) => {
       try {
         res.send({ data: user });
       } catch (error) {
         if (error.name === 'ValidationError') {
           throw new BadRequestError('Ошибка валидации обновления пользователя');
-        } else if (!user) {
-          throw new NotFoundError('Нет пользователя с таким id');
         }
       }
     })
@@ -94,14 +97,13 @@ const updateAvatar = (req, res, next) => { // метод, возвращающи
       runValidators: true,
     },
   )
+    .orFail(() => { throw new NotFoundError('Нет пользователя с таким id'); })
     .then((user) => {
       try {
         res.send({ data: user.avatar });
       } catch (error) {
         if (error.name === 'ValidationError') {
           throw new BadRequestError('Ошибка валидации обновления пользователя');
-        } else if (!user) {
-          throw new NotFoundError('Нет пользователя с таким id');
         }
       }
     })
