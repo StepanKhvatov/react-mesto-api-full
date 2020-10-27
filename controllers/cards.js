@@ -1,5 +1,4 @@
 const CardSchema = require('../models/card');
-const BadRequestError = require('../errors/BadRequestError(400)');
 const NotFoundError = require('../errors/NotFoundError(404)');
 const ForbiddenError = require('../errors/ForbiddenError(403)');
 
@@ -50,9 +49,6 @@ const likeCard = (req, res, next) => { // Постановка лайка кар
   )
     .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Нет карточки с таким id');
-      }
       res.send({ data: card });
     })
     .catch(next);
@@ -66,10 +62,6 @@ const dislikeCard = (req, res, next) => { // Удаление лайка кар�
   )
     .orFail(() => { throw new NotFoundError('Нет карточки с таким id'); })
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Нет карточки с таким id');
-      }
-
       res.send({ data: card });
     })
     .catch(next);
