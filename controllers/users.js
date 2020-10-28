@@ -48,7 +48,7 @@ const createUser = (req, res, next) => { // Метод создания поль
             },
           });
         })
-        .catch();
+        .catch(next);
     })
     .catch(next);
 };

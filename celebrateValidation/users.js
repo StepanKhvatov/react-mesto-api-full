@@ -15,6 +15,6 @@ module.exports.updateAvatarValidation = celebrate({
 
 module.exports.getUserByIdValidation = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().min(24).max(24),
+    userId: Joi.string().hex().length(24),
   }),
 });

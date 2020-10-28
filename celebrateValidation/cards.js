@@ -9,12 +9,12 @@ module.exports.createCardValidation = celebrate({ // создание карто
 
 module.exports.deleteCardValidation = celebrate({ // удаление карточки
   params: Joi.object().keys({
-    cardId: Joi.string().hex().min(24).max(24),
+    cardId: Joi.string().hex().length(24),
   }),
 });
 
 module.exports.likeCardValidation = celebrate({ // лайк карточки
   params: Joi.object().keys({
-    cardId: Joi.string().hex().min(24).max(24),
+    cardId: Joi.string().hex().length(24),
   }),
 });
