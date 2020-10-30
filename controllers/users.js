@@ -53,8 +53,17 @@ const createUser = (req, res, next) => { // Метод создания поль
     .catch(next);
 };
 
-const getUserById = (req, res, next) => { // поиск по id, находящимся в req.user._id
+const getUserByPayloadId = (req, res, next) => {
   UserSchema.findById(req.user._id)// req.params.userId было до изменений
+    .orFail(() => { throw new NotFoundError('Нет пользователя с таким id'); })
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
+const getUserById = (req, res, next) => {
+  UserSchema.findById(req.params.id)
     .orFail(() => { throw new NotFoundError('Нет пользователя с таким id'); })
     .then((user) => {
       res.send({ data: user });
@@ -127,6 +136,7 @@ const login = (req, res, next) => { // Авторицзация пользова
 
 module.exports = {
   getAllUsers,
+  getUserByPayloadId,
   getUserById,
   createUser,
   updateUser,
